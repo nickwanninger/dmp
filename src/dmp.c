@@ -27,16 +27,23 @@ main(int argc, char** argv) {
 		{"linecount", required_argument, 0, 'l'},
 		{NULL, 0, NULL, 0} 
 	};
+	
 
+	int binary = 0;
 
 	char o = 0;
-	while ((o = getopt_long(argc, argv, "l:", long_options, NULL)) != -1) {
+	while ((o = getopt_long(argc, argv, "l:b", long_options, NULL)) != -1) {
 		switch (o) {
+			case 'b':
+				binary = 1;
+				break;
 			case 'l':
 				linesize = atoi(optarg);
 				break;
 		}
 	}
+
+	if (binary) printf("binary\n");
 
 
 	if (optind >= argc) {
@@ -63,7 +70,12 @@ main(int argc, char** argv) {
 		}
 		// Now the hex code for the specific character.
 		if (!(c > 0x20 && c < 0x7e)) printf("\x1b[2m");
-		printf(" %02x" ANSI_COLOR_RESET, (unsigned char)c);
+		if (binary) {
+			printf(" "BYTE_TO_BINARY_PATTERN ANSI_COLOR_RESET, BYTE_TO_BINARY((unsigned char)c)); 
+		} else {
+			printf(" %02x" ANSI_COLOR_RESET, (unsigned char)c);
+		}
+	
 		// And store a printable ASCII character for later.
 		if ((c < 0x20) || (c > 0x7e)) {
 			buff[i % linesize] = '.';
