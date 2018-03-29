@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-
+#include <stdbool.h>
 
 
 #define ANSI_COLOR_RESET   "\x1b[0m"
@@ -23,6 +23,8 @@
   (byte & 0x01 ? '1' : '0') 
 
 
+void printcharbuff(int count, char* buff);
+int main(int argc, char** argv);
 
 static FILE* input;
 

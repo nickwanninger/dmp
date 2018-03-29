@@ -2,24 +2,39 @@
 
 
 
+bool binary = false;
+bool hexonly = false;
+
 
 
 void
 printcharbuff(int count, char* buff) {
-	int i = 0;
-	printf(" |  ");
-	for (i = 0; i < count; i++) {
-		char c = buff[i];
-		if (c == '.') printf("\x1b[2m");
-		printf("%c"ANSI_COLOR_RESET, c);
+
+	if (!hexonly) {
+		int i = 0;
+		printf("  | ");
+		for (i = 0; i < count; i++) {
+			char c = buff[i];
+			// if (c == '.') printf("\x1b[2m");
+			printf("%c", c);
+		}
 	}
 	printf("\n");
 }
 
 
+void
+printbyte(char c) {
+	if (binary) {
+		printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY((unsigned char)c)); 
+	} else {
+		printf(" %02x", (unsigned char)c);
+	}
+}
+
+
 int
 main(int argc, char** argv) {
-
 
 	int linesize = 0xf;
 
@@ -27,15 +42,16 @@ main(int argc, char** argv) {
 		{"linecount", required_argument, 0, 'l'},
 		{NULL, 0, NULL, 0} 
 	};
-	
 
-	int binary = 0;
 
 	char o = 0;
-	while ((o = getopt_long(argc, argv, "l:b", long_options, NULL)) != -1) {
+	while ((o = getopt_long(argc, argv, "l:bh", long_options, NULL)) != -1) {
 		switch (o) {
+			case 'h':
+				hexonly = true;
+				break;
 			case 'b':
-				binary = 1;
+				binary = true;
 				break;
 			case 'l':
 				linesize = atoi(optarg);
@@ -43,7 +59,6 @@ main(int argc, char** argv) {
 		}
 	}
 
-	if (binary) printf("binary\n");
 
 
 	if (optind >= argc) {
@@ -66,16 +81,17 @@ main(int argc, char** argv) {
 			if (i != 0)
 				printcharbuff(linesize, buff);
 			// Output the offset.
-			printf("%07x |", i);
+			if (!hexonly) printf("%07x |", i);
 		}
 		// Now the hex code for the specific character.
-		if (!(c > 0x20 && c < 0x7e)) printf("\x1b[2m");
-		if (binary) {
-			printf(" "BYTE_TO_BINARY_PATTERN ANSI_COLOR_RESET, BYTE_TO_BINARY((unsigned char)c)); 
-		} else {
-			printf(" %02x" ANSI_COLOR_RESET, (unsigned char)c);
-		}
-	
+		// if (!(c > 0x20 && c < 0x7e)) printf("\x1b[2m");
+		// if (binary) {
+		//	printf(" "BYTE_TO_BINARY_PATTERN ANSI_COLOR_RESET, BYTE_TO_BINARY((unsigned char)c)); 
+		//} else {
+		//	printf(" %02x" ANSI_COLOR_RESET, (unsigned char)c);
+		//}
+		printbyte(c);
+
 		// And store a printable ASCII character for later.
 		if ((c < 0x20) || (c > 0x7e)) {
 			buff[i % linesize] = '.';
@@ -95,6 +111,6 @@ main(int argc, char** argv) {
 
 
 
-	
+
 	return 0;
 }
