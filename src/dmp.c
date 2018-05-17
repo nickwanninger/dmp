@@ -1,7 +1,5 @@
 #include "dmp.h"
 
-
-
 bool binary = false;
 bool hexonly = false;
 
@@ -9,13 +7,11 @@ bool hexonly = false;
 
 void
 printcharbuff(int count, char* buff) {
-
 	if (!hexonly) {
 		int i = 0;
 		printf("  | ");
 		for (i = 0; i < count; i++) {
 			char c = buff[i];
-			// if (c == '.') printf("\x1b[2m");
 			printf("%c", c);
 		}
 	}
@@ -26,7 +22,7 @@ printcharbuff(int count, char* buff) {
 void
 printbyte(char c) {
 	if (binary) {
-		printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY((unsigned char)c)); 
+		printf(" " BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY((unsigned char)c)); 
 	} else {
 		printf(" %02x", (unsigned char)c);
 	}
@@ -39,7 +35,7 @@ main(int argc, char** argv) {
 	int linesize = 0xf;
 
 	static struct option const long_options[] = {
-		{"linecount", required_argument, 0, 'l'},
+		{"linesize", required_argument, 0, 'l'},
 		{NULL, 0, NULL, 0} 
 	};
 
@@ -60,18 +56,16 @@ main(int argc, char** argv) {
 	}
 
 
-
 	if (optind >= argc) {
 		input = stdin;
 	} else {
 		input = fopen(argv[optind], "r");
 	}
 
-
 	int i = 0;
 	char c = 0;
 
-	char* buff = calloc(1, linesize);
+	char* buff = (char*)calloc(1, linesize);
 
 	while (!feof(input)) {
 		c = fgetc(input) & 0xff;
@@ -83,15 +77,9 @@ main(int argc, char** argv) {
 			// Output the offset.
 			if (!hexonly) printf("%07x |", i);
 		}
-		// Now the hex code for the specific character.
-		// if (!(c > 0x20 && c < 0x7e)) printf("\x1b[2m");
-		// if (binary) {
-		//	printf(" "BYTE_TO_BINARY_PATTERN ANSI_COLOR_RESET, BYTE_TO_BINARY((unsigned char)c)); 
-		//} else {
-		//	printf(" %02x" ANSI_COLOR_RESET, (unsigned char)c);
-		//}
-		printbyte(c);
 
+		// Now the hex code for the specific character.
+		printbyte(c);
 		// And store a printable ASCII character for later.
 		if ((c < 0x20) || (c > 0x7e)) {
 			buff[i % linesize] = '.';
@@ -108,9 +96,6 @@ main(int argc, char** argv) {
 		i++;
 	}
 	printcharbuff(linesize, buff);
-
-
-
 
 	return 0;
 }

@@ -26,11 +26,12 @@ all: $(OBJDIR) $(exe)
 
 $(OBJDIR):
 	@mkdir -p $@
+	@mkdir -p "asm"
 
 $(OBJDIR)/%.o: $(addprefix $(SRCDIR)/,%.c)
 	@printf "Compiling    $@ <- $<\n"
 	@mkdir -p $(dir $@)
-	@$(CC) $(WARNINGS) $(CFLAGS) -c $< -o $@
+	@$(CC) $(WARNINGS) $(CFLAGS) -c $< -o $@  -fverbose-asm
 
 $(exe):  $(OBJFILES)
 	@printf "Linking      $@ <- $(OBJDIR)/*\n"
